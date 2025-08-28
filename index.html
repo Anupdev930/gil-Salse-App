@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales App - Login</title>
+    <style>
+        /* Import Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        /* CSS Reset and Basic Setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            overflow: hidden; /* Prevents scrollbars from the two-panel layout */
+        }
+
+        .login-wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Left Informational Panel */
+        .info-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #007BFF, #0056b3);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .info-content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .info-content p {
+            font-size: 1.1rem;
+            font-weight: 400;
+            max-width: 450px;
+            line-height: 1.6;
+        }
+
+        /* Right Login Panel */
+        .login-panel {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #F8F9FA;
+        }
+
+        .login-card {
+            background-color: white;
+            padding: 50px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-card h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-card .help-text {
+            color: #888;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+        }
+
+        #login-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        
+        #login-button:hover {
+            background-color: #0056b3;
+        }
+
+        #login-button:disabled {
+            background-color: #a0c3e6;
+            cursor: not-allowed;
+        }
+
+        .extra-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .extra-links a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .extra-links a:hover {
+            text-decoration: underline;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            text-align: center;
+            height: 20px;
+            color: #d93025;
+            font-weight: 500;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 850px) {
+            .info-panel {
+                display: none; /* Hide the left panel on smaller screens */
+            }
+            .login-panel {
+                flex-basis: 100%; /* Make the login panel take full width */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <!-- Left Informational Panel -->
+        <div class="info-panel">
+            <div class="info-content">
+                <h1>Sales App Hub</h1>
+                <p>Manage sales, inventory, and users with ease. Secure login to access your dashboard.</p>
+            </div>
+        </div>
+
+        <!-- Right Login Panel -->
+        <div class="login-panel">
+            <div class="login-card">
+                <h2>Welcome to your Space 👋</h2>
+                <p class="help-text">Please sign-in to your account</p>
+                
+                <div class="input-group">
+                    <label for="email">Email ID</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+
+                <button id="login-button" onclick="login()">Sign In</button>
+                
+                <div class="extra-links">
+                    <a href="#">Forgot Password?</a>
+                </div>
+
+                <p id="message"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // PASTE YOUR DEPLOYED WEB APP URL HERE
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz4rczYSc6x5iWNflvYVWEv6qVWgkFQeTOKCbWekhllKDh6N_xWVeRGP_-CpQAQYSHRXw/exec'; 
+
+    function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const messageElement = document.getElementById('message');
+        const loginButton = document.getElementById('login-button');
+
+        if (!email || !password) {
+            messageElement.innerText = "Please enter both email and password.";
+            return;
+        }
+
+        messageElement.innerText = "";
+        loginButton.innerText = "Signing In...";
+        loginButton.disabled = true;
+
+        const loginData = { email: email, password: password };
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            body: JSON.stringify(loginData),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                // --- THIS IS THE FIX ---
+                // Store BOTH userType and userEmail in the session
+                sessionStorage.setItem("userType", data.userType);
+                sessionStorage.setItem("userEmail", data.userEmail); 
+                // ---------------------
+                
+                const userPages = {
+                    "Sales Team": "Sales.html",
+                    "Godown Team": "Godown.html",
+                    "Manager": "manager.html",
+                    "Admin": "admin.html",
+                    "Super Admin": "superadmin.html"
+                };
+
+                const page = userPages[data.userType];
+                if (page) {
+                    window.location.href = page;
+                } else {
+                    messageElement.innerText = "Login successful, but role is unknown.";
+                    resetLoginButton();
+                }
+            } else {
+                messageElement.innerText = data.message;
+                resetLoginButton();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            messageElement.innerText = 'An error occurred. Please try again.';
+            resetLoginButton();
+        });
+    }
+
+    function resetLoginButton() {
+        const loginButton = document.getElementById('login-button');
+        loginButton.innerText = "Sign In";
+        loginButton.disabled = false;
+    }
+
+    </script>
+</body>
+</html>

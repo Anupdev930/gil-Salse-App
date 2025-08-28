@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Dashboard</title>
+    <!-- We need a charting library. Chart.js is perfect and free. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 25px;
+            color: #444;
+        }
+        .container { max-width: 1200px; margin: auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .header h1 { font-size: 2rem; font-weight: 600; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto;
+            gap: 25px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .main-card {
+            grid-column: span 1;
+            text-align: center;
+            cursor: pointer;
+        }
+        .main-card h2 { color: #007bff; margin: 10px 0 5px; font-size: 1.5rem; }
+        .main-card p { color: #6c757d; font-size: 0.9rem; }
+        .stat-card {
+            grid-column: span 1;
+            text-align: center;
+        }
+        .stat-card .title { color: #6c757d; font-size: 0.9rem; margin-bottom: 10px; }
+        .stat-card .value { font-size: 2.5rem; font-weight: 600; color: #007bff; }
+        .chart-card { grid-column: span 1; }
+        .chart-card h3 { text-align: center; font-weight: 500; margin-bottom: 20px; }
+        /* Make grid responsive */
+        @media (max-width: 992px) {
+            .dashboard-grid { grid-template-columns: 1fr 1fr; }
+            .main-card, .chart-card { grid-column: span 2; }
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .main-card, .stat-card, .chart-card { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><h1>Command Dashboard</h1></div>
+        <div class="dashboard-grid">
+            <div class="card main-card" onclick="window.location.href='manager.html'">
+                <h2>Order Overview</h2>
+                <p>View, filter, and track all system orders.</p>
+            </div>
+            <div class="card main-card">
+                <h2>Manage Users</h2>
+                <p>Add, edit, or remove user accounts.</p>
+            </div>
+            <div class="card stat-card">
+                <div class="title">Total Orders</div>
+                <div class="value" id="totalOrders">0</div>
+            </div>
+            <div class="card stat-card">
+                <div class="title">New Orders</div>
+                <div class="value" id="newOrders">0</div>
+            </div>
+            <div class="card stat-card">
+                <div class="title">In-Progress Orders</div>
+                <div class="value" id="inProgressOrders">0</div>
+            </div>
+            <div class="card stat-card">
+                <div class="title">Completed Orders</div>
+                <div class="value" id="completedOrders">0</div>
+            </div>
+            <div class="card chart-card">
+                <h3>Orders by Location</h3>
+                <canvas id="locationChart"></canvas>
+            </div>
+            <div class="card chart-card">
+                <h3>Orders by Status</h3>
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz4rczYSc6x5iWNflvYVWEv6qVWgkFQeTOKCbWekhllKDh6N_xWVeRGP_-CpQAQYSHRXw/exec';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const userType = sessionStorage.getItem("userType");
+            if (userType !== "Admin" && userType !== "Super Admin") {
+                window.location.href = "Index.html";
+                return;
+            }
+            fetchDashboardData();
+        });
+
+        function fetchDashboardData() {
+            fetch(`${WEB_APP_URL}?action=getDashboardData`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        renderDashboard(result.data);
+                    } else {
+                        alert('Error fetching dashboard data: ' + result.message);
+                    }
+                }).catch(err => console.error("Fetch Error:", err));
+        }
+
+        function renderDashboard(data) {
+            const orders = data.orders;
+            // 1. Render Stat Cards
+            document.getElementById('totalOrders').innerText = orders.length;
+            document.getElementById('newOrders').innerText = orders.filter(o => o.orderStatus === 'New').length;
+            document.getElementById('inProgressOrders').innerText = orders.filter(o => ['Order Received', 'Dispatch'].includes(o.orderStatus)).length;
+            document.getElementById('completedOrders').innerText = orders.filter(o => o.orderStatus === 'Delivered').length;
+
+            // 2. Render Charts
+            renderStatusChart(orders);
+            renderLocationChart(orders);
+        }
+
+        function renderStatusChart(orders) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            const statusCounts = orders.reduce((acc, order) => {
+                acc[order.orderStatus] = (acc[order.orderStatus] || 0) + 1;
+                return acc;
+            }, {});
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#007bff', '#fd7e14', '#28a745', '#dc3545', '#6f42c1', '#6c757d'],
+                        borderWidth: 2
+                    }]
+                },
+                options: { responsive: true, cutout: '70%' }
+            });
+        }
+
+        function renderLocationChart(orders) {
+            const ctx = document.getElementById('locationChart').getContext('2d');
+            const locationCounts = orders.reduce((acc, order) => {
+                acc[order.godownLocation] = (acc[order.godownLocation] || 0) + 1;
+                return acc;
+            }, {});
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(locationCounts),
+                    datasets: [{
+                        label: 'Number of Orders',
+                        data: Object.values(locationCounts),
+                        backgroundColor: '#007bff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>```
