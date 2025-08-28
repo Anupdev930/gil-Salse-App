@@ -5,52 +5,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Godown Dashboard</title>
     <style>
-        /* --- General and Table Styles (Unchanged) --- */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        body{font-family:'Poppins',sans-serif;background-color:#f4f7f6;margin:0;padding:20px;color:#333}
-        .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-        .main-content{background-color:white;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1)}
-        .top-filters{display:flex;gap:20px;margin-bottom:20px;align-items:center}
-        .top-filters label{font-weight:500}
-        .top-filters select{padding:8px;border-radius:4px;border:1px solid #ccc}
-        .orders-table{width:100%;border-collapse:collapse}
-        .orders-table th,.orders-table td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
-        .orders-table th{background-color:#f8f9fa;font-weight:600}
-        .orders-table tbody tr:hover { background-color: #f8f9fa; cursor: pointer; }
-        .update-btn{background-color:#007bff;color:white;border:none;border-radius:4px;padding:5px 10px;cursor:pointer}
-        .update-btn:hover{background-color:#0056b3}
-
-        /* --- Modal Styles (Unchanged for Update Modal) --- */
-        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:1000}
-        .modal-content{background:white;padding:30px;border-radius:8px;width:90%;max-width:500px;position:relative}
-        .close-btn{position:absolute;top:15px;right:15px;font-size:24px;cursor:pointer;border:none;background:none}
-        .form-group{margin-bottom:15px}
-        .form-group label{display:block;margin-bottom:5px;font-weight:500}
-        .form-group select,.form-group textarea,.form-group input{width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;font-family:'Poppins',sans-serif}
-        .submit-btn{width:100%;padding:12px;background-color:#28a745;color:white;border:none;border-radius:4px;cursor:pointer;font-size:16px}
-        .submit-btn:disabled{background-color:#9c9c9c;cursor:not-allowed}
-        #orderIdDisplay, #historyOrderIdDisplay{font-weight:600;background-color:#e9ecef;padding:10px;border-radius:4px;margin-bottom:20px}
-        .hidden{display:none}
-
-        /* --- NEW: Styles for the History/Tracking Modal (Unchanged) --- */
-        #historyModal .modal-content { max-width: 600px; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .main-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .top-filters {
+            display: flex;
+            flex-wrap: wrap; /* Allows filters to stack on small screens */
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .top-filters label {
+            font-weight: 500;
+        }
+        .top-filters select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        
+        /* --- DESKTOP TABLE STYLES --- */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .orders-table thead {
+            background-color: #f8f9fa;
+        }
+        .orders-table th, .orders-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+        .orders-table th {
+            font-weight: 600;
+        }
+        .orders-table tbody tr:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+        .update-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .update-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group select, .form-group textarea, .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-btn:disabled {
+            background-color: #9c9c9c;
+            cursor: not-allowed;
+        }
+        #orderIdDisplay, #historyOrderIdDisplay {
+            font-weight: 600;
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        #historyModal .modal-content {
+            max-width: 600px;
+        }
         .timeline { list-style: none; padding: 0; position: relative; }
         .timeline::before { content: ''; position: absolute; top: 0; bottom: 0; left: 10px; width: 3px; background-color: #e9ecef; }
         .timeline-item { margin-bottom: 20px; padding-left: 30px; position: relative; }
         .timeline-dot { position: absolute; left: 0; top: 4px; width: 22px; height: 22px; border-radius: 50%; background-color: #007bff; border: 3px solid white; }
-        .timeline-item:first-child .timeline-dot { background-color: #6c757d; }
-        .timeline-item:last-child .timeline-dot { background-color: #28a745; }
         .timeline-date { font-size: 13px; color: #6c757d; margin-bottom: 5px; }
         .timeline-content { background-color: #f8f9fa; padding: 15px; border-radius: 6px; }
-        .timeline-content h4 { margin: 0 0 10px; font-size: 16px; }
-        .timeline-content p { margin: 0 0 5px; font-size: 14px; }
-        .timeline-content a { color: #007bff; text-decoration: none; font-weight: 500; }
+
+        /* --- NEW: RESPONSIVE CARD VIEW FOR MOBILE --- */
+        @media (max-width: 768px) {
+            .orders-table thead {
+                display: none; /* Hide the table header on mobile */
+            }
+            .orders-table, .orders-table tbody, .orders-table tr, .orders-table td {
+                display: block; /* Make table elements behave like divs */
+                width: 100%;
+            }
+            .orders-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                overflow: hidden;
+            }
+            .orders-table td {
+                text-align: right; /* Align value to the right */
+                padding-left: 50%; /* Create space for the label */
+                position: relative;
+                border-bottom: 1px solid #eee;
+            }
+            .orders-table td:last-child {
+                border-bottom: none;
+            }
+            .orders-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 12px;
+                width: calc(50% - 24px);
+                text-align: left;
+                font-weight: 500;
+                color: #333;
+            }
+            .action-cell {
+                padding-left: 12px;
+                text-align: center;
+                background-color: #f8f9fa;
+            }
+            .action-cell .update-btn {
+                width: 100%;
+                padding: 10px;
+            }
+            .action-cell::before {
+                content: ""; /* Hide label for the action button */
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- HTML structure is unchanged -->
-    <div class="header"><h1>Godown Order Management</h1></div>
+    <div class="header">
+        <h1>Godown Order Management</h1>
+    </div>
+
     <div class="main-content">
         <div class="top-filters">
             <div>
@@ -76,7 +229,9 @@
             </div>
         </div>
         <table class="orders-table">
-            <thead><tr><th>UniqueID</th><th>Timestamp</th><th>Item Name</th><th>Qty</th><th>Location</th><th>Status</th><th>Action</th></tr></thead>
+            <thead>
+                <tr><th>UniqueID</th><th>Timestamp</th><th>Item Name</th><th>Qty</th><th>Location</th><th>Status</th><th>Action</th></tr>
+            </thead>
             <tbody id="ordersTableBody"></tbody>
         </table>
     </div>
@@ -88,7 +243,10 @@
             <div id="orderIdDisplay"></div>
             <form id="updateOrderForm">
                 <input type="hidden" id="updateUniqueID">
-                <div class="form-group"><label for="newStatus">New Status</label><select id="newStatus" required><option value="">Select new status</option><option value="Order Received">Order Received</option><option value="Dispatch">Dispatch</option><option value="Delivered">Delivered</option><option value="Cancel">Cancel</option><option value="Reject">Reject</option></select></div>
+                <div class="form-group">
+                    <label for="newStatus">New Status</label>
+                    <select id="newStatus" required><option value="">Select new status</option><option value="Order Received">Order Received</option><option value="Dispatch">Dispatch</option><option value="Delivered">Delivered</option><option value="Cancel">Cancel</option><option value="Reject">Reject</option></select>
+                </div>
                 <div class="form-group hidden" id="remarkGroup"><label for="remark">Remark</label><textarea id="remark" rows="3"></textarea></div>
                 <div class="form-group hidden" id="invoiceGroup"><label for="invoiceFile">Upload Invoice</label><input type="file" id="invoiceFile" accept=".pdf,.jpg,.jpeg,.png"></div>
                 <button type="submit" class="submit-btn">Update Status</button>
@@ -107,10 +265,8 @@
 
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz4rczYSc6x5iWNflvYVWEv6qVWgkFQeTOKCbWekhllKDh6N_xWVeRGP_-CpQAQYSHRXw/exec';
-        // --- CORRECTION: The variable is now declared only ONCE here. ---
-        let allOrdersData = []; 
+        let allOrdersData = [];
 
-        // --- Event listener to run when the page content is loaded ---
         document.addEventListener('DOMContentLoaded', function() {
             if (sessionStorage.getItem("userType") !== "Godown Team") {
                 window.location.href = "Index.html";
@@ -119,14 +275,13 @@
             fetchAllOrders();
         });
 
-        // --- Data Fetching and Table Population ---
         function fetchAllOrders() {
             fetch(`${WEB_APP_URL}?action=getAllOrders`)
                 .then(response => response.json())
                 .then(result => {
                     if (result.status === 'success') {
                         allOrdersData = result.data;
-                        filterTable(); // Initially populate table with all data
+                        filterTable();
                     } else {
                         alert('Error fetching orders: ' + result.message);
                     }
@@ -140,19 +295,20 @@
                 const row = document.createElement('tr');
                 row.setAttribute('onclick', `openHistoryModal('${order.uniqueID}')`);
                 row.innerHTML = `
-                    <td>${order.uniqueID}</td>
-                    <td>${order.timestamp}</td>
-                    <td>${order.itemName}</td>
-                    <td>${order.qty}</td>
-                    <td>${order.godownLocation}</td>
-                    <td>${order.orderStatus}</td>
-                    <td><button class="update-btn" onclick="event.stopPropagation(); openUpdateModal('${order.uniqueID}')">Update</button></td>
+                    <td data-label="UniqueID">${order.uniqueID}</td>
+                    <td data-label="Timestamp">${order.timestamp}</td>
+                    <td data-label="Item Name">${order.itemName}</td>
+                    <td data-label="Qty">${order.qty}</td>
+                    <td data-label="Location">${order.godownLocation}</td>
+                    <td data-label="Status">${order.orderStatus}</td>
+                    <td data-label="Action" class="action-cell">
+                        <button class="update-btn" onclick="event.stopPropagation(); openUpdateModal('${order.uniqueID}')">Update</button>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
         }
         
-        // --- Filtering Logic ---
         function filterTable() {
             const locationFilter = document.getElementById('locationFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
@@ -167,7 +323,6 @@
             populateTable(filteredData);
         }
         
-        // --- Modal Controls (Both Update and History Modals) ---
         const updateModal = document.getElementById('updateModal');
         const historyModal = document.getElementById('historyModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -181,7 +336,7 @@
         });
 
         function openUpdateModal(uniqueID) {
-            event.stopPropagation(); // Prevent history modal from opening
+            event.stopPropagation();
             document.getElementById('updateOrderForm').reset();
             resetModalFields();
             document.getElementById('updateUniqueID').value = uniqueID;
@@ -246,7 +401,6 @@
             container.innerHTML = timelineHTML;
         }
 
-        // --- Dynamic Form Logic for Update Modal ---
         document.getElementById('newStatus').addEventListener('change', function() {
             const status = this.value;
             const remarkGroup = document.getElementById('remarkGroup');
@@ -283,7 +437,6 @@
             document.getElementById('invoiceFile').required = false;
         }
         
-        // --- Update Form Submission Logic ---
         document.getElementById('updateOrderForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const invoiceFile = document.getElementById('invoiceFile').files[0];
@@ -323,7 +476,7 @@
                 alert(result.message);
                 if (result.status === 'success') {
                     updateModal.style.display = 'none';
-                    fetchAllOrders(); // Refresh the table
+                    fetchAllOrders();
                 }
             })
             .catch(err => alert("An error occurred: " + err))
