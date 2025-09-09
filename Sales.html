@@ -5,58 +5,242 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Dashboard</title>
     <style>
-        /* CSS is unchanged */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        body{font-family:'Poppins',sans-serif;background-color:#f4f7f6;margin:0;padding:20px}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.header h1{color:#333}.add-request-btn{background-color:#007bff;color:white;border:none;border-radius:50px;padding:10px 20px;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background-color .3s}.add-request-btn:hover{background-color:#0056b3}.add-request-btn .plus-icon{font-size:20px;font-weight:700}.main-content{background-color:white;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.1)}.filters{margin-bottom:20px;display:flex;gap:15px}.filters input{padding:10px;border:1px solid #ddd;border-radius:4px;width:250px}.orders-table{width:100%;border-collapse:collapse}.orders-table th,.orders-table td{padding:12px;border-bottom:1px solid #eee;text-align:left}.orders-table th{background-color:#f8f9fa;font-weight:600}.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:1000}
-        
-        /* --- CHANGE --- Added max-height and overflow-y */
-        .modal-content{
-            background:white;
-            padding:30px;
-            border-radius:8px;
-            width:90%;
-            max-width:700px;
-            position:relative;
-            max-height: 85vh; /* Set a maximum height */
-            overflow-y: auto;  /* Add scrollbar when needed */
+
+        :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --secondary-color: #17a2b8;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-gray: #f4f7f6;
+            --white: #fff;
+            --dark-text: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column; /* Mobile first */
+            gap: 15px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--dark-text);
+            margin: 0;
+        }
+
+        .add-request-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color .3s;
+        }
+
+        .add-request-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .add-request-btn .plus-icon {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .main-content {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+
+        .filters {
+            margin-bottom: 20px;
+        }
+
+        .filters input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 100%; /* Full width for mobile */
+            box-sizing: border-box; /* Important for padding and border */
         }
         
-        .modal-content h2{margin-top:0}.close-btn{position:absolute;top:15px;right:15px;font-size:24px;cursor:pointer;border:none;background:none}.form-group{margin-bottom:15px}.form-group label{display:block;margin-bottom:5px;font-weight:500}.form-group input,.form-group select{width:100%;padding:10px;border:1px solid #ccc;border-radius:4px}
-        .submit-btn{width:100%;padding:12px;background-color:#28a745;color:white;border:none;border-radius:4px;cursor:pointer;font-size:16px;transition: background-color 0.3s ease;}
-        .submit-btn:hover{background-color:#218838}
+        /* Table Wrapper for horizontal scrolling on mobile */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap; /* Prevents text from wrapping */
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .orders-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px; /* Padding for smaller screens */
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--success-color);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
         .submit-btn:disabled {
             background-color: #9c9c9c;
             cursor: not-allowed;
         }
+
         .item-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr; /* Single column for mobile */
             gap: 15px;
             border-bottom: 1px solid #eee;
             padding-bottom: 15px;
             margin-bottom: 15px;
         }
+
         .item-row .form-group {
             margin-bottom: 0;
         }
+
         .add-item-btn {
-            background-color: #17a2b8;
-            color: white;
+            background-color: var(--secondary-color);
+            color: var(--white);
             border: none;
             border-radius: 4px;
             padding: 10px 15px;
             cursor: pointer;
             margin-top: 10px;
         }
+
         .remove-item-btn {
-            background-color: #dc3545;
-            color: white;
+            background-color: var(--danger-color);
+            color: var(--white);
             border: none;
             border-radius: 4px;
             padding: 5px 10px;
             cursor: pointer;
-            grid-column: span 2;
             justify-self: end;
+        }
+
+        /* --- Media Queries for Responsiveness --- */
+
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .filters input {
+                width: 350px;
+            }
+
+            .modal-content {
+                padding: 30px;
+            }
+
+            .item-row {
+                grid-template-columns: repeat(2, 1fr); /* Two columns for tablet and up */
+            }
+
+            .remove-item-btn {
+                grid-column: span 2; /* Make remove button span both columns */
+            }
         }
     </style>
 </head>
@@ -71,16 +255,19 @@
         <div class="filters">
             <input type="text" id="filterInput" onkeyup="filterTable()" placeholder="Filter by Item Name or Vender...">
         </div>
-        <table class="orders-table">
-            <thead>
-                <tr>
-                    <th>UniqueID</th><th>Timestamp</th><th>Vender Name</th><th>Item Name</th><th>Qty</th><th>Godown Location</th><th>Discount</th><th>Other</th><th>Order Status</th>
-                </tr>
-            </thead>
-            <tbody id="ordersTableBody">
-                <!-- Data will be loaded here -->
-            </tbody>
-        </table>
+        <!-- Wrapper for horizontal scrolling -->
+        <div class="table-wrapper">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>UniqueID</th><th>Timestamp</th><th>Vender Name</th><th>Item Name</th><th>Qty</th><th>Godown Location</th><th>Discount</th><th>Other</th><th>Order Status</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="modal-overlay" id="requestModal">
@@ -114,6 +301,7 @@
     </div>
 
     <script>
+        // Your JavaScript remains unchanged as it primarily handles logic.
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz4rczYSc6x5iWNflvYVWEv6qVWgkFQeTOKCbWekhllKDh6N_xWVeRGP_-CpQAQYSHRXw/exec';
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -147,8 +335,8 @@
                 <div class="form-group">
                     <label for="discount">Discount</label>
                     <div style="display: flex;">
-                        <input type="number" class="discountValue" placeholder="Value">
-                        <select class="discountType">
+                        <input type="number" class="discountValue" placeholder="Value" style="flex: 1;">
+                        <select class="discountType" style="flex: 0 0 100px;">
                             <option value="%">%</option>
                             <option value="amount">Amount</option>
                         </select>
